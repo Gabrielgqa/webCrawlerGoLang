@@ -2,21 +2,26 @@ package main
 
 import (
 	"fmt"
+	"main/db"
 	"net/http"
 	"net/url"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
 var (
-	urls    []string
 	visited map[string]bool = map[string]bool{}
 )
 
 func main() {
-	visitUrl("https://github.com/Gabrielgqa")
+	visitUrl("https://aprendagolang.com.br")
+}
 
-	fmt.Println(len(urls))
+type VisitedUrl struct {
+	Website     string    `bson: "website"`
+	Url         string    `bson: "url"`
+	VisitedDate time.Time `bson: "visited_date"`
 }
 
 func visitUrl(url string) {
@@ -58,7 +63,13 @@ func extractLinksFromUrl(element *html.Node) {
 				continue
 			}
 
-			urls = append(urls, link.String())
+			visitedUrl := VisitedUrl{
+				Website:     link.Host,
+				Url:         link.String(),
+				VisitedDate: time.Now(),
+			}
+
+			db.Insert("links", visitedUrl)
 
 			visitUrl(link.String())
 		}
