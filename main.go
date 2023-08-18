@@ -8,15 +8,23 @@ import (
 	"golang.org/x/net/html"
 )
 
-var links []string
+var (
+	urls    []string
+	visited map[string]bool = map[string]bool{}
+)
 
 func main() {
 	visitUrl("https://github.com/Gabrielgqa")
 
-	fmt.Println(len(links))
+	fmt.Println(len(urls))
 }
 
 func visitUrl(url string) {
+	if ok := visited[url]; ok {
+		return
+	}
+
+	visited[url] = true
 	fmt.Println(url)
 	resp, err := http.Get(url)
 
@@ -50,7 +58,7 @@ func extractLinksFromUrl(element *html.Node) {
 				continue
 			}
 
-			links = append(links, link.String())
+			urls = append(urls, link.String())
 
 			visitUrl(link.String())
 		}
